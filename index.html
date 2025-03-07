@@ -1,11 +1,21 @@
 <!doctype html>
 
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Lit Starter Kit</title>
-  </head>
-  <body>
-    <a href="/dev/index.html">Component Demo</a>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <title>&lt;my-element> Demo</title>
+  <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+  <script src="node_modules/lit/polyfill-support.js"></script>
+  <script type="module" src="my-element.js"></script>
+  <script type="module" src="src/components/nav-top.js"></script>
+  <script type="module" src="src/components/employee-add-edit.js"></script>
+  <script defer type="module" src="src/main.js"></script>
+</head>
+<body>
+
+<nav-top></nav-top>
+
+<!--<employee-add-edit />-->
+<div id="outlet"></div>
+</body>
 </html>
