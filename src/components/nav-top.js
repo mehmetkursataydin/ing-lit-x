@@ -1,4 +1,4 @@
-import {LitElement, html, css} from 'lit';
+import { LitElement, html, css } from 'lit';
 
 class NavTop extends LitElement {
   static get styles() {

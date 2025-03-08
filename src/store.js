@@ -17,7 +17,6 @@ const employeeMachine = createMachine({
         ADD_EMPLOYEE: {
           actions: assign({
             employees: ({context, event}) => {
-              console.log('c', context);
               const newEmployees = [...context.employees, event.employee];
               localStorage.setItem('employees', JSON.stringify(newEmployees));
               return newEmployees;
@@ -28,7 +27,7 @@ const employeeMachine = createMachine({
           actions: assign({
             employees: ({context, event}) => {
               const newEmployees = context.employees.map((e) =>
-                e.id === event.employee.id ? event.employee : e
+                (e.phoneNumber === event.employee.phoneNumber || e.email === event.employee.email) ? event.employee : e
               );
               localStorage.setItem('employees', JSON.stringify(newEmployees));
               return newEmployees;
@@ -39,7 +38,7 @@ const employeeMachine = createMachine({
           actions: assign({
             employees: ({context, event}) => {
               const newEmployees = context.employees.filter(
-                (emp) => emp.id !== event.id
+                (e) => e.phoneNumber !== event.phoneNumber
               );
               localStorage.setItem('employees', JSON.stringify(newEmployees));
               return newEmployees;

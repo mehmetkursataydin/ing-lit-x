@@ -1,107 +1,278 @@
-import { html, css, LitElement } from 'lit';
-import { employeeService } from '../store.js';
+import {html, css, LitElement} from 'lit';
+import {employeeService} from '../store.js';
 
 class EmployeeList extends LitElement {
   static properties = {
-    employees: { type: Array },
-    viewMode: { type: String }
+    employees: {type: Array},
+    viewMode: {type: String, reflect: true},
+    itemsPerPage: {type: Number, reflect: true},
+    currentPage: {type: Number},
   };
 
   constructor() {
     super();
     this.employees = employeeService.getSnapshot().context.employees;
     this.viewMode = 'table';
+    this.itemsPerPage = this.viewMode === 'table' ? 1 : 4;
+    this.currentPage = 1;
+    this.totalPages = Math.ceil(this.employees.length / this.itemsPerPage);
+  }
+
+  _paginatedList() {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.employees.slice(start, start + this.itemsPerPage);
+  }
+
+  updated(changedVal) {
+    if (changedVal.has('viewMode')) {
+      this.itemsPerPage = this.viewMode === 'table' ?1 : 4;
+    }
+    // handling an edge case here, if let's say list view is set to show 3 items per page, grid mod is set to show 1 item per page
+    // what happens if the user switch back to list view at the last page of grid view?
+    // so to handle this; set current page to total calculated page count (and if zero set to 1) if current page count is bigger
+    // than total calc page count
+    const totalPages = Math.ceil(this.employees.length / this.itemsPerPage);
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = totalPages || 1;
+    }
+    this.totalPages = totalPages;
+  }
+
+  _changePage(page) {
+    if (page !== '...' && page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.requestUpdate();
+    }
+  }
+
+  _createPaginationButtons() {
+    const buttons = [];
+    const total = this.totalPages;
+
+    if (total <= 3) {
+      for (let i = 1; i <= total; i++) {
+        buttons.push(i);
+      }
+    } else {
+      buttons.push(1); // first page btn is always visible
+
+      if (this.currentPage <= 3) {
+        // in the design i see 5 visible numbers of the pages but for this task i set
+        buttons.push(2);
+        buttons.push(3);
+        if (total > 4) {
+          buttons.push('...');
+        }
+      } else if (this.currentPage >= total - 2) {
+        // ending adjustments
+        buttons.push('...');
+        buttons.push(total - 2);
+        buttons.push(total - 1);
+      } else {
+        // dots, page, dots until ending
+        buttons.push('...');
+        buttons.push(this.currentPage);
+        buttons.push('...');
+      }
+
+      // lst page btn is always visible
+      buttons.push(total);
+    }
+
+    return buttons;
   }
 
   static styles = css`
-      :host {
-          display: block;
-          font-family: Arial, sans-serif;
-      }
+    :host {
+      --primary-color: #ff6200;
+      --secondary-color: #525199;
+      --background-color: #f9f9f9;
+      --border-color: #f1f1f1;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --text-bold: bold;
 
-      .container {
-          padding: 20px;
-          background: #f9f9f9;
-          border-radius: 10px;
-      }
+      display: block;
+      font-family: Arial, sans-serif;
+    }
 
-      h2 {
-          color: #ff6600;
-          margin-bottom: 20px;
-      }
+    .container {
+      padding: 20px;
+      background: var(--background-color);
+      border-radius: 10px;
+    }
 
-      .table-container {
-          background: white;
-          padding: 20px;
-          border-radius: 10px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
+    .title-view-mode-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
 
-      table {
-          width: 100%;
-          border-collapse: collapse;
-      }
+    h2 {
+      color: var(--primary-color);
+    }
 
-      th, td {
-          padding: 10px;
-          text-align: left;
-      }
+    .view-toggle button {
+      background: none;
+      border: 0;
+      cursor: pointer;
+      border-radius: 5px;
+      color: var(--primary-color);
+      padding: 0;
+    }
 
-      th {
-          background: #f2f2f2;
-          color: #ff6600;
-      }
+    .view-toggle button.active svg {
+      stroke-width: 3px;
+    }
 
-      tr:nth-child(even) {
-          background: #f9f9f9;
-      }
+    .table-container {
+      background: white;
+      padding: 20px 0;
+      box-shadow: 0 2px 10px var(--shadow-color);
+    }
 
-      .actions button {
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 16px;
-      }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
 
-      .edit {
-          color: #ff6600;
-      }
+    th,
+    td {
+      font-size: 14px;
+      padding: 10px;
+      text-align: center;
+    }
 
-      .delete {
-          color: red;
-      }
+    td:nth-child(2),
+    td:nth-child(1) {
+      font-weight: var(--text-bold);
+    }
 
-      .pagination {
-          margin-top: 20px;
-          display: flex;
-          justify-content: center;
-      }
+    tr {
+      border-bottom: 1px solid var(--border-color);
+    }
 
-      .pagination button.active {
-          background: #ff6600;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          margin: 0 5px;
-          border-radius: 100%;
-          cursor: pointer;
-          height: 26px;
-          width: 26px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-      }
+    th {
+      background: white;
+      color: var(--primary-color);
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 25px;
+    }
 
-      .pagination button {
-          background: transparent;
-          border: 0;
-      }
+    tr:last-child {
+      border: 0;
+    }
 
-      .title-view-mode-container {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      width: 800px;
+      margin: 0 auto;
+      row-gap: 30px;
+      column-gap: 80px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      box-shadow: 0 2px 2px var(--shadow-color);
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .card-actions.grid {
+      justify-content: start;
+      gap: 16px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .label {
+      font-size: 12px;
+      color: gray;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .label + p {
+      margin: 4px 0;
+    }
+
+    .pagination {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      flex-direction: row;
+      gap: 10px;
+    }
+
+    .pagination button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .pagination button.active {
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .icon-button.grid {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 12px;
+
+      svg {
+        stroke: white;
       }
+    }
+
+    .icon-button.orange {
+      background-color: var(--primary-color);
+    }
+
+    .icon-button svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--primary-color);
+    }
+
+    .pagination-button svg {
+      stroke: #c7c7c7;
+    }
+
+    .pagination-button.enabled svg {
+      stroke: var(--primary-color);
+    }
   `;
 
   render() {
@@ -109,63 +280,269 @@ class EmployeeList extends LitElement {
       <div class="container">
         <div class="title-view-mode-container">
           <h2>Employee List</h2>
-          <div>
-            <!--            todo style buttons, add search-->
-            <input
-              type="text"
-              placeholder="search"
-            />
-            <button @click="${() => (this.viewMode = 'list')}">List</button>
-            <button @click="${() => (this.viewMode = 'table')}">Table</button>
+          <div class="view-toggle">
+            <button
+              @click="${() => (this.viewMode = 'table')}"
+              class="${
+                this.viewMode === 'table' ? 'active' : ''
+              }">${this.renderTableViewIcon()}
+            </button>
+            <button
+              @click="${() => (this.viewMode = 'grid')}"
+              class="${
+                this.viewMode === 'grid' ? 'active' : ''
+              }">${this.renderGridViewIcon()}
+            </button>
           </div>
         </div>
-        <div class="table-container">
-          <table>
-            <thead>
-            <tr>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Date of Employment</th>
-              <th>Date of Birth</th>
-              <th>Phone</th>
-              <th>Email</th>
-              <th>Department</th>
-              <th>Position</th>
-              <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            ${this.employees.map(
-              (e) => html`
-                <tr>
-                  <td>${e.firstName}</td>
-                  <td>${e.lastName}</td>
-                  <td>${e.dateOfEmployment}</td>
-                  <td>${e.dateOfBirth}</td>
-                  <td>${e.phoneNumber}</td>
-                  <td>${e.email}</td>
-                  <td>${e.department}</td>
-                  <td>${e.position}</td>
-                  <td class="actions">
-                    <button class="edit">✏️</button>
-                    <button class="delete">🗑️</button>
-                  </td>
-                </tr>
+
+        ${
+          this.viewMode === 'table'
+            ? html`
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Date of Employment</th>
+                        <th>Date of Birth</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Position</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${this._paginatedList().map(
+                        (e) => html`
+                          <tr>
+                            <td>${e.firstName}</td>
+                            <td>${e.lastName}</td>
+                            <td>${e.dateOfEmployment}</td>
+                            <td>${e.dateOfBirth}</td>
+                            <td>${e.phoneNumber}</td>
+                            <td>${e.email}</td>
+                            <td>${e.department}</td>
+                            <td>${e.position}</td>
+                            <td>
+                              <button class="icon-button">
+                                ${this.renderEditIcon()}
+                              </button>
+                              <button class="icon-button">
+                                ${this.renderDeleteIcon()}
+                              </button>
+                            </td>
+                          </tr>
+                        `
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               `
-            )}
-            </tbody>
-          </table>
-        </div>
-        <!--        todo styling could be improved for pagination-->
+            : html`
+                <div class="grid-container">
+                  ${this._paginatedList().map(
+                    (e) => html`
+                      <div class="card">
+                        <div class="card-content">
+                          <div class="info-grid">
+                            <div>
+                              <p class="label">First Name</p>
+                              <p><strong>${e.firstName}</strong></p>
+                            </div>
+                            <div>
+                              <p class="label">Last Name</p>
+                              <p><strong>${e.lastName}</strong></p>
+                            </div>
+                            <div>
+                              <p class="label">Date of Employment</p>
+                              <p><strong>${e.dateOfEmployment}</strong></p>
+                            </div>
+                            <div>
+                              <p class="label">Date of Birth</p>
+                              <p><strong>${e.dateOfBirth}</strong></p>
+                            </div>
+                            <div>
+                              <p class="label">Phone</p>
+                              <p><strong>${e.phoneNumber}</strong></p>
+                            </div>
+                            <div>
+                              <p class="label">Email</p>
+                              <p><strong>${e.email}</strong></p>
+                            </div>
+                            <div>
+                              <p class="label">Department</p>
+                              <p><strong>${e.department}</strong></p>
+                            </div>
+                            <div>
+                              <p class="label">Position</p>
+                              <p><strong>${e.position}</strong></p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="card-actions grid">
+                          <button class="icon-button grid">
+                            ${this.renderEditIcon()} Edit
+                          </button>
+                          <button class="icon-button grid orange">
+                            ${this.renderDeleteIcon()} Delete
+                          </button>
+                        </div>
+                      </div>
+                    `
+                  )}
+                </div>
+              `
+        }
         <div class="pagination">
-          <button>&lt;</button>
-          <button class="active">1</button>
-          <button>2</button>
-          <button>3</button>
-          <button>&gt;</button>
+          <button class="pagination-button enabled" @click="${() =>
+            this._changePage(this.currentPage - 1)}"
+                  ?disabled="${
+                    this.currentPage === 1
+                  }">${this.renderChevronLeftIcon()}
+          </button>
+          ${this._createPaginationButtons().map(
+            (page) => html`
+              ${page === '...'
+                ? html`<span class="dots">...</span>`
+                : html` <button
+                    class="${this.currentPage === page ? 'active' : ''}"
+                    @click="${() => this._changePage(page)}"
+                  >
+                    ${page}
+                  </button>`}
+            `
+          )}
+          <button @click="${() => this._changePage(this.currentPage + 1)}"
+                  ?disabled="${
+                    this.currentPage * this.itemsPerPage >=
+                    this.employees.length
+                  }">
+            ${this.renderChevronRightIcon()}
+          </button>
         </div>
       </div>
+      </div>
     `;
+  }
+
+  renderEditIcon() {
+    return html` <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-square-pen"
+    >
+      <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path
+        d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"
+      />
+    </svg>`;
+  }
+
+  renderDeleteIcon() {
+    return html` <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-trash"
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    </svg>`;
+  }
+
+  renderGridViewIcon() {
+    return html` <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-grip"
+    >
+      <circle cx="12" cy="5" r="1" />
+      <circle cx="19" cy="5" r="1" />
+      <circle cx="5" cy="5" r="1" />
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="19" cy="12" r="1" />
+      <circle cx="5" cy="12" r="1" />
+      <circle cx="12" cy="19" r="1" />
+      <circle cx="19" cy="19" r="1" />
+      <circle cx="5" cy="19" r="1" />
+    </svg>`;
+  }
+
+  renderTableViewIcon() {
+    return html` <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-align-justify"
+    >
+      <path d="M3 12h18" />
+      <path d="M3 18h18" />
+      <path d="M3 6h18" />
+    </svg>`;
+  }
+
+  renderChevronLeftIcon() {
+    return html` <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-chevron-left"
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>`;
+  }
+
+  renderChevronRightIcon() {
+    return html` <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-chevron-right"
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>`;
   }
 }
 
