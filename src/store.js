@@ -19,6 +19,17 @@ const employeeMachine = createMachine({
         ADD_EMPLOYEE: {
           actions: assign({
             employees: ({context, event}) => {
+              // duplicate entry check
+              const duplicate = context.employees.find(
+                (e) =>
+                  e.phoneNumber === event.employee.phoneNumber ||
+                  e.email === event.employee.email
+              );
+              if (duplicate) {
+                // duplicate found, could throw an event to handle the error from the component maybe or
+                // there might be a better solution to handle this but it requires xstate research :)
+                return context.employees;
+              }
               const newEmployees = [...context.employees, event.employee];
               localStorage.setItem('employees', JSON.stringify(newEmployees));
               return newEmployees;
