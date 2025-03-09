@@ -14,7 +14,7 @@ class EmployeeAddEdit extends LitElement {
       align-items: center;
       flex-direction: column;
       margin: 0 auto;
-      padding: 20px 20px;
+      padding: 20px;
     }
 
     h2 {
@@ -46,27 +46,23 @@ class EmployeeAddEdit extends LitElement {
     .form-btn-container {
       display: flex;
       gap: 50px;
+    }
 
-      button {
-        width: 200px;
-        height: 32px;
-        border-radius: 6px;
-        border: 0 solid transparent;
-        background-color: var(--primary-color);
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-      }
+    .form-btn-container button {
+      width: 200px;
+      height: 32px;
+      border-radius: 6px;
+      border: 0 solid transparent;
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-      button.cancel {
-        width: 200px;
-        height: 32px;
-        border-radius: 6px;
-        border: 1px solid var(--secondary-color);
-        color: var(--secondary-color);
-        background-color: white;
-        font-weight: bold;
-      }
+    .form-btn-container button.cancel {
+      border: 1px solid var(--secondary-color);
+      color: var(--secondary-color);
+      background-color: white;
     }
 
     label {
@@ -78,10 +74,27 @@ class EmployeeAddEdit extends LitElement {
     input {
       height: 24px;
     }
+
+    @media (max-width: 768px) {
+      form {
+        padding: 40px;
+      }
+
+      .form-container {
+        grid-template-columns: 1fr;
+        column-gap: 20px;
+        row-gap: 20px;
+      }
+
+      .form-btn-container {
+        flex-direction: column;
+        gap: 20px;
+      }
+    }
   `;
 
   static properties = {
-    isEdit: false,
+    isEdit: {type: Boolean},
     employee: {type: Object, reflect: true},
     showConfirmModal: {type: Boolean},
     confirmMessage: {type: String},
@@ -155,10 +168,10 @@ class EmployeeAddEdit extends LitElement {
         ${this.isEdit
           ? html`
               <div class="title-edit-form">
-                <strong>
-                  You are editing ${this.formData.firstName}
-                  ${this.formData.lastName}
-                </strong>
+                <strong
+                  >You are editing ${this.formData.firstName}
+                  ${this.formData.lastName}</strong
+                >
               </div>
             `
           : null}
@@ -173,7 +186,6 @@ class EmployeeAddEdit extends LitElement {
               required
             />
           </label>
-
           <label>
             Last Name
             <input
@@ -184,7 +196,6 @@ class EmployeeAddEdit extends LitElement {
               required
             />
           </label>
-
           <label>
             Date of Employment
             <input
@@ -195,7 +206,6 @@ class EmployeeAddEdit extends LitElement {
               required
             />
           </label>
-
           <label>
             Date of Birth
             <input
@@ -206,7 +216,6 @@ class EmployeeAddEdit extends LitElement {
               required
             />
           </label>
-
           <label>
             Phone Number
             <input
@@ -217,7 +226,6 @@ class EmployeeAddEdit extends LitElement {
               required
             />
           </label>
-
           <label>
             Email
             <input
@@ -228,7 +236,6 @@ class EmployeeAddEdit extends LitElement {
               required
             />
           </label>
-
           <label>
             Department
             <select
@@ -251,7 +258,6 @@ class EmployeeAddEdit extends LitElement {
               </option>
             </select>
           </label>
-
           <label>
             Position
             <select
@@ -295,7 +301,7 @@ class EmployeeAddEdit extends LitElement {
               .message="${this.confirmMessage}"
               @confirm="${this._onConfirm}"
               @cancel="${this._onCancel}"
-            />
+            ></confirmation-modal>
           `
         : ''}
     `;

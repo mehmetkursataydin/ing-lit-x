@@ -136,7 +136,7 @@ class EmployeeList extends LitElement {
 
   static styles = css`
     :host {
-        font-family: "ING Me Regular",serif;
+      font-family: 'ING Me Regular', serif;
       --primary-color: #ff6200;
       --secondary-color: #525199;
       --background-color: #f9f9f9;
@@ -180,7 +180,7 @@ class EmployeeList extends LitElement {
     .table-container {
       background: white;
       padding: 20px 0;
-      //box-shadow: 0 2px 10px var(--shadow-color);
+      /* box-shadow: 0 2px 10px var(--shadow-color); */
     }
 
     table {
@@ -195,8 +195,8 @@ class EmployeeList extends LitElement {
       text-align: center;
     }
 
-    td:nth-child(2),
-    td:nth-child(1) {
+    td:nth-child(1),
+    td:nth-child(2) {
       font-weight: var(--text-bold);
     }
 
@@ -220,7 +220,8 @@ class EmployeeList extends LitElement {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 20px;
-      width: 800px;
+      width: 100%;
+      max-width: 800px;
       margin: 0 auto;
       row-gap: 30px;
       column-gap: 80px;
@@ -325,308 +326,361 @@ class EmployeeList extends LitElement {
     .pagination-button.enabled svg {
       stroke: var(--primary-color);
     }
+
+    @media (max-width: 768px) {
+      .grid-container {
+        column-gap: 20px;
+        row-gap: 20px;
+      }
+
+      .table-container {
+        overflow-x: auto;
+      }
+
+      .container {
+        padding: 10px;
+      }
+
+      table th,
+      table td {
+        padding: 5px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+        column-gap: 10px;
+        row-gap: 10px;
+      }
+
+      .view-toggle {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
   `;
 
   render() {
     return html`
       <div class="container">
-        ${!this.editingEmployee ? html`<div class="title-view-mode-container">
-          <h2>${this.editingEmployee ? '' : 'Employee List'}</h2>
-          <div class="view-toggle">
-            <button
-              @click="${() => (this.viewMode = 'table')}"
-              class="${
-                this.viewMode === 'table' ? 'active' : ''
-              }">${this.renderTableViewIcon()}
-            </button>
-            <button
-              @click="${() => (this.viewMode = 'grid')}"
-              class="${
-                this.viewMode === 'grid' ? 'active' : ''
-              }">${this.renderGridViewIcon()}
-            </button>
-          </div>`:''}
-        </div>
-        ${
-          this.editingEmployee
-            ? html` <employee-add-edit
+        ${!this.editingEmployee
+          ? html`
+              <div class="title-view-mode-container">
+                <h2>Employee List</h2>
+                <div class="view-toggle">
+                  <button
+                    @click="${() => (this.viewMode = 'table')}"
+                    class="${this.viewMode === 'table' ? 'active' : ''}"
+                  >
+                    ${this.renderTableViewIcon()}
+                  </button>
+                  <button
+                    @click="${() => (this.viewMode = 'grid')}"
+                    class="${this.viewMode === 'grid' ? 'active' : ''}"
+                  >
+                    ${this.renderGridViewIcon()}
+                  </button>
+                </div>
+              </div>
+            `
+          : ''}
+        ${this.editingEmployee
+          ? html`
+              <employee-add-edit
                 .employee="${this.editingEmployee}"
                 @employee-list-updated="${this._handleEditFormSubmitted}"
                 @employee-cancel-edit="${this._handleEditFormSubmitted}"
-              />`
-            : this.viewMode === 'table'
-            ? html`
-                <div class="table-container">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Date of Employment</th>
-                        <th>Date of Birth</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                        <th>Department</th>
-                        <th>Position</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${this._paginatedList().map(
-                        (e) => html`
-                          <tr>
-                            <td>${e.firstName}</td>
-                            <td>${e.lastName}</td>
-                            <td>${e.dateOfEmployment}</td>
-                            <td>${e.dateOfBirth}</td>
-                            <td>${e.phoneNumber}</td>
-                            <td>${e.email}</td>
-                            <td>${e.department}</td>
-                            <td>${e.position}</td>
-                            <td>
-                              <button
-                                class="icon-button"
-                                @click="${() => this._handleEdit(e)}"
-                              >
-                                ${this.renderEditIcon()}
-                              </button>
-                              <button
-                                class="icon-button"
-                                @click="${() =>
-                                  this._handleDeleteWithConfirmation(e)}"
-                              >
-                                ${this.renderDeleteIcon()}
-                              </button>
-                            </td>
-                          </tr>
-                        `
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              `
-            : html`
-                <div class="grid-container">
-                  ${this._paginatedList().map(
-                    (e) => html`
-                      <div class="card">
-                        <div class="card-content">
-                          <div class="info-grid">
-                            <div>
-                              <p class="label">First Name</p>
-                              <p><strong>${e.firstName}</strong></p>
-                            </div>
-                            <div>
-                              <p class="label">Last Name</p>
-                              <p><strong>${e.lastName}</strong></p>
-                            </div>
-                            <div>
-                              <p class="label">Date of Employment</p>
-                              <p><strong>${e.dateOfEmployment}</strong></p>
-                            </div>
-                            <div>
-                              <p class="label">Date of Birth</p>
-                              <p><strong>${e.dateOfBirth}</strong></p>
-                            </div>
-                            <div>
-                              <p class="label">Phone</p>
-                              <p><strong>${e.phoneNumber}</strong></p>
-                            </div>
-                            <div>
-                              <p class="label">Email</p>
-                              <p><strong>${e.email}</strong></p>
-                            </div>
-                            <div>
-                              <p class="label">Department</p>
-                              <p><strong>${e.department}</strong></p>
-                            </div>
-                            <div>
-                              <p class="label">Position</p>
-                              <p><strong>${e.position}</strong></p>
-                            </div>
+              ></employee-add-edit>
+            `
+          : this.viewMode === 'table'
+          ? html`
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>First Name</th>
+                      <th>Last Name</th>
+                      <th>Date of Employment</th>
+                      <th>Date of Birth</th>
+                      <th>Phone</th>
+                      <th>Email</th>
+                      <th>Department</th>
+                      <th>Position</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${this._paginatedList().map(
+                      (e) => html`
+                        <tr>
+                          <td>${e.firstName}</td>
+                          <td>${e.lastName}</td>
+                          <td>${e.dateOfEmployment}</td>
+                          <td>${e.dateOfBirth}</td>
+                          <td>${e.phoneNumber}</td>
+                          <td>${e.email}</td>
+                          <td>${e.department}</td>
+                          <td>${e.position}</td>
+                          <td>
+                            <button
+                              class="icon-button"
+                              @click="${() => this._handleEdit(e)}"
+                            >
+                              ${this.renderEditIcon()}
+                            </button>
+                            <button
+                              class="icon-button"
+                              @click="${() =>
+                                this._handleDeleteWithConfirmation(e)}"
+                            >
+                              ${this.renderDeleteIcon()}
+                            </button>
+                          </td>
+                        </tr>
+                      `
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            `
+          : html`
+              <div class="grid-container">
+                ${this._paginatedList().map(
+                  (e) => html`
+                    <div class="card">
+                      <div class="card-content">
+                        <div class="info-grid">
+                          <div>
+                            <p class="label">First Name</p>
+                            <p><strong>${e.firstName}</strong></p>
+                          </div>
+                          <div>
+                            <p class="label">Last Name</p>
+                            <p><strong>${e.lastName}</strong></p>
+                          </div>
+                          <div>
+                            <p class="label">Date of Employment</p>
+                            <p><strong>${e.dateOfEmployment}</strong></p>
+                          </div>
+                          <div>
+                            <p class="label">Date of Birth</p>
+                            <p><strong>${e.dateOfBirth}</strong></p>
+                          </div>
+                          <div>
+                            <p class="label">Phone</p>
+                            <p><strong>${e.phoneNumber}</strong></p>
+                          </div>
+                          <div>
+                            <p class="label">Email</p>
+                            <p><strong>${e.email}</strong></p>
+                          </div>
+                          <div>
+                            <p class="label">Department</p>
+                            <p><strong>${e.department}</strong></p>
+                          </div>
+                          <div>
+                            <p class="label">Position</p>
+                            <p><strong>${e.position}</strong></p>
                           </div>
                         </div>
-                        <div class="card-actions grid">
-                          <button
-                            class="icon-button grid"
-                            @click="${() => this._handleEdit(e)}"
-                          >
-                            ${this.renderEditIcon()} Edit
-                          </button>
-                          <button
-                            class="icon-button grid orange"
-                            @click="${() =>
-                              this._handleDeleteWithConfirmation(e)}"
-                          >
-                            ${this.renderDeleteIcon()} Delete
-                          </button>
-                        </div>
                       </div>
-                    `
-                  )}
-                </div>
-              `
-        }
-
-        ${!this.editingEmployee ? html`<div class="pagination">
-          <button class="pagination-button enabled" @click="${() =>
-            this._changePage(this.currentPage - 1)}"
-                  ?disabled="${
-                    this.currentPage === 1
-                  }">${this.renderChevronLeftIcon()}
-          </button>
-          ${this._createPaginationButtons().map(
-            (page) => html`
-              ${page === '...'
-                ? html`<span class="dots">...</span>`
-                : html` <button
-                    class="${this.currentPage === page ? 'active' : ''}"
-                    @click="${() => this._changePage(page)}"
-                  >
-                    ${page}
-                  </button>`}
-            `
-          )}
-          <button @click="${() => this._changePage(this.currentPage + 1)}"
-                  ?disabled="${
-                    this.currentPage * this.itemsPerPage >=
-                    this.employees.length
-                  }">
-            ${this.renderChevronRightIcon()}
-          </button>
-        </div>` : ''}
-      </div>
-      ${
-        this.showConfirmModal
+                      <div class="card-actions grid">
+                        <button
+                          class="icon-button grid"
+                          @click="${() => this._handleEdit(e)}"
+                        >
+                          ${this.renderEditIcon()} Edit
+                        </button>
+                        <button
+                          class="icon-button grid orange"
+                          @click="${() =>
+                            this._handleDeleteWithConfirmation(e)}"
+                        >
+                          ${this.renderDeleteIcon()} Delete
+                        </button>
+                      </div>
+                    </div>
+                  `
+                )}
+              </div>
+            `}
+        ${!this.editingEmployee
           ? html`
-              <confirmation-modal
-                .visible="${this.showConfirmModal}"
-                .message="${this.confirmMessage}"
-                @confirm="${this._onConfirm}"
-                @cancel="${this._onCancel}"
-              />
+              <div class="pagination">
+                <button
+                  class="pagination-button enabled"
+                  @click="${() => this._changePage(this.currentPage - 1)}"
+                  ?disabled="${this.currentPage === 1}"
+                >
+                  ${this.renderChevronLeftIcon()}
+                </button>
+                ${this._createPaginationButtons().map(
+                  (page) => html`
+                    ${page === '...'
+                      ? html`<span class="dots">...</span>`
+                      : html`
+                          <button
+                            class="${this.currentPage === page ? 'active' : ''}"
+                            @click="${() => this._changePage(page)}"
+                          >
+                            ${page}
+                          </button>
+                        `}
+                  `
+                )}
+                <button
+                  @click="${() => this._changePage(this.currentPage + 1)}"
+                  ?disabled="${this.currentPage * this.itemsPerPage >=
+                  this.employees.length}"
+                >
+                  ${this.renderChevronRightIcon()}
+                </button>
+              </div>
             `
-          : ''
-      }
+          : ''}
       </div>
+      ${this.showConfirmModal
+        ? html`
+            <confirmation-modal
+              .visible="${this.showConfirmModal}"
+              .message="${this.confirmMessage}"
+              @confirm="${this._onConfirm}"
+              @cancel="${this._onCancel}"
+            ></confirmation-modal>
+          `
+        : ''}
     `;
   }
 
   renderEditIcon() {
-    return html` <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-square-pen"
-    >
-      <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-      <path
-        d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"
-      />
-    </svg>`;
+    return html`
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-square-pen"
+      >
+        <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+        <path
+          d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"
+        />
+      </svg>
+    `;
   }
 
   renderDeleteIcon() {
-    return html` <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-trash"
-    >
-      <path d="M3 6h18" />
-      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-    </svg>`;
+    return html`
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-trash"
+      >
+        <path d="M3 6h18" />
+        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      </svg>
+    `;
   }
 
   renderGridViewIcon() {
-    return html` <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-grip"
-    >
-      <circle cx="12" cy="5" r="1" />
-      <circle cx="19" cy="5" r="1" />
-      <circle cx="5" cy="5" r="1" />
-      <circle cx="12" cy="12" r="1" />
-      <circle cx="19" cy="12" r="1" />
-      <circle cx="5" cy="12" r="1" />
-      <circle cx="12" cy="19" r="1" />
-      <circle cx="19" cy="19" r="1" />
-      <circle cx="5" cy="19" r="1" />
-    </svg>`;
+    return html`
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-grip"
+      >
+        <circle cx="12" cy="5" r="1" />
+        <circle cx="19" cy="5" r="1" />
+        <circle cx="5" cy="5" r="1" />
+        <circle cx="12" cy="12" r="1" />
+        <circle cx="19" cy="12" r="1" />
+        <circle cx="5" cy="12" r="1" />
+        <circle cx="12" cy="19" r="1" />
+        <circle cx="19" cy="19" r="1" />
+        <circle cx="5" cy="19" r="1" />
+      </svg>
+    `;
   }
 
   renderTableViewIcon() {
-    return html` <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-align-justify"
-    >
-      <path d="M3 12h18" />
-      <path d="M3 18h18" />
-      <path d="M3 6h18" />
-    </svg>`;
+    return html`
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-align-justify"
+      >
+        <path d="M3 12h18" />
+        <path d="M3 18h18" />
+        <path d="M3 6h18" />
+      </svg>
+    `;
   }
 
   renderChevronLeftIcon() {
-    return html` <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-chevron-left"
-    >
-      <path d="m15 18-6-6 6-6" />
-    </svg>`;
+    return html`
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-chevron-left"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    `;
   }
 
   renderChevronRightIcon() {
-    return html` <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-chevron-right"
-    >
-      <path d="m9 18 6-6-6-6" />
-    </svg>`;
+    return html`
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-chevron-right"
+      >
+        <path d="m9 18 6-6-6-6" />
+      </svg>
+    `;
   }
 }
 
