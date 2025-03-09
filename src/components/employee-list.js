@@ -1,4 +1,5 @@
 import {html, css, LitElement} from 'lit';
+import {msg, str, updateWhenLocaleChanges} from '@lit/localize';
 import {employeeService} from '../store.js';
 
 class EmployeeList extends LitElement {
@@ -15,6 +16,7 @@ class EmployeeList extends LitElement {
 
   constructor() {
     super();
+    updateWhenLocaleChanges(this);
     this.employees = employeeService.getSnapshot().context.employees;
     this.viewMode = 'table';
     this.itemsPerPage = this.viewMode === 'table' ? 9 : 4;
@@ -99,7 +101,9 @@ class EmployeeList extends LitElement {
   }
 
   _handleDeleteWithConfirmation(employee) {
-    this.confirmMessage = `Selected employee record of ${employee.firstName} ${employee.lastName} will be deleted.`;
+    this.confirmMessage = msg(
+      str`Selected employee record of ${employee.firstName} ${employee.lastName} will be deleted.`
+    );
     this.showConfirmModal = true;
     this.employeeToDelete = employee;
   }
@@ -117,7 +121,7 @@ class EmployeeList extends LitElement {
     this.showConfirmModal = false;
   }
 
-  _handleEditFormSubmitted(e) {
+  _handleEditFormSubmitted() {
     this.editingEmployee = null;
   }
 
@@ -136,7 +140,7 @@ class EmployeeList extends LitElement {
 
   static styles = css`
     :host {
-      font-family: 'ING Me Regular', serif;
+      font-family: 'INGMe', serif;
       --primary-color: #ff6200;
       --secondary-color: #525199;
       --background-color: #f9f9f9;
@@ -368,7 +372,7 @@ class EmployeeList extends LitElement {
         ${!this.editingEmployee
           ? html`
               <div class="title-view-mode-container">
-                <h2>Employee List</h2>
+                <h2>${msg(html`Employee List`)}</h2>
                 <div class="view-toggle">
                   <button
                     @click="${() => (this.viewMode = 'table')}"
@@ -400,15 +404,15 @@ class EmployeeList extends LitElement {
                 <table>
                   <thead>
                     <tr>
-                      <th>First Name</th>
-                      <th>Last Name</th>
-                      <th>Date of Employment</th>
-                      <th>Date of Birth</th>
-                      <th>Phone</th>
-                      <th>Email</th>
-                      <th>Department</th>
-                      <th>Position</th>
-                      <th>Actions</th>
+                      <th>${msg(html`First Name`)}</th>
+                      <th>${msg(html`Last Name`)}</th>
+                      <th>${msg(html`Date of Employment`)}</th>
+                      <th>${msg(html`Date of Birth`)}</th>
+                      <th>${msg(html`Phone`)}</th>
+                      <th>${msg(html`Email`)}</th>
+                      <th>${msg(html`Department`)}</th>
+                      <th>${msg(html`Position`)}</th>
+                      <th>${msg(html`Actions`)}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -453,35 +457,37 @@ class EmployeeList extends LitElement {
                       <div class="card-content">
                         <div class="info-grid">
                           <div>
-                            <p class="label">First Name</p>
+                            <p class="label">${msg(html`First Name`)}</p>
                             <p><strong>${e.firstName}</strong></p>
                           </div>
                           <div>
-                            <p class="label">Last Name</p>
+                            <p class="label">${msg(html`Last Name`)}</p>
                             <p><strong>${e.lastName}</strong></p>
                           </div>
                           <div>
-                            <p class="label">Date of Employment</p>
+                            <p class="label">
+                              ${msg(html`Date of Employment`)}
+                            </p>
                             <p><strong>${e.dateOfEmployment}</strong></p>
                           </div>
                           <div>
-                            <p class="label">Date of Birth</p>
+                            <p class="label">${msg(html`Date of Birth`)}</p>
                             <p><strong>${e.dateOfBirth}</strong></p>
                           </div>
                           <div>
-                            <p class="label">Phone</p>
+                            <p class="label">${msg(html`Phone`)}</p>
                             <p><strong>${e.phoneNumber}</strong></p>
                           </div>
                           <div>
-                            <p class="label">Email</p>
+                            <p class="label">${msg(html`Email`)}</p>
                             <p><strong>${e.email}</strong></p>
                           </div>
                           <div>
-                            <p class="label">Department</p>
+                            <p class="label">${msg(html`Department`)}</p>
                             <p><strong>${e.department}</strong></p>
                           </div>
                           <div>
-                            <p class="label">Position</p>
+                            <p class="label">${msg(html`Position`)}</p>
                             <p><strong>${e.position}</strong></p>
                           </div>
                         </div>
@@ -491,14 +497,14 @@ class EmployeeList extends LitElement {
                           class="icon-button grid"
                           @click="${() => this._handleEdit(e)}"
                         >
-                          ${this.renderEditIcon()} Edit
+                          ${this.renderEditIcon()} ${msg(html`Edit`)}
                         </button>
                         <button
                           class="icon-button grid orange"
                           @click="${() =>
                             this._handleDeleteWithConfirmation(e)}"
                         >
-                          ${this.renderDeleteIcon()} Delete
+                          ${this.renderDeleteIcon()} ${msg(html`Delete`)}
                         </button>
                       </div>
                     </div>

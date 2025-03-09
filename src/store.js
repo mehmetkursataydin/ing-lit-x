@@ -1,14 +1,16 @@
-import { createMachine, createActor, assign } from 'xstate';
+import {createMachine, createActor, assign} from 'xstate';
+import {sourceLocale} from './generated/locale-codes.js';
 
-const getStoredLocalStorageData = () => {
-  const data = localStorage.getItem('employees');
-  return data ? JSON.parse(data) : [];
+const getStoredLocalStorageData = (key, defaultValue) => {
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : defaultValue;
 };
 
 const employeeMachine = createMachine({
   id: 'employee',
   context: {
-    employees: getStoredLocalStorageData(),
+    employees: getStoredLocalStorageData('employees', []),
+    language: getStoredLocalStorageData('language', sourceLocale || 'en'),
   },
   initial: 'idle',
   states: {
@@ -27,7 +29,10 @@ const employeeMachine = createMachine({
           actions: assign({
             employees: ({context, event}) => {
               const newEmployees = context.employees.map((e) =>
-                (e.phoneNumber === event.employee.phoneNumber || e.email === event.employee.email) ? event.employee : e
+                e.phoneNumber === event.employee.phoneNumber ||
+                e.email === event.employee.email
+                  ? event.employee
+                  : e
               );
               localStorage.setItem('employees', JSON.stringify(newEmployees));
               return newEmployees;
@@ -42,6 +47,14 @@ const employeeMachine = createMachine({
               );
               localStorage.setItem('employees', JSON.stringify(newEmployees));
               return newEmployees;
+            },
+          }),
+        },
+        CHANGE_LANGUAGE: {
+          actions: assign({
+            language: ({event}) => {
+              localStorage.setItem('language', JSON.stringify(event.language));
+              return event.language;
             },
           }),
         },

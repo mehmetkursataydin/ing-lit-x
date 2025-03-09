@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<file target-language="tr" source-language="en" original="lit-localize-inputs" datatype="plaintext">
+<body>
+<trans-unit id="h3db6c3999daeecdb">
+  <source>Employee List</source>
+  <target>Çalışan Listesi</target>
+</trans-unit>
+<trans-unit id="h32c9b3dd030fc24c">
+  <source>Add Employee</source>
+  <target>Çalışan Ekle</target>
+</trans-unit>
+<trans-unit id="sb1af1900e7b69f56">
+  <source>Selected employee record of <x id="0" equiv-text="${this.formData.firstName} ${this.formData.lastName}"/> will be updated.</source>
+  <target>Seçilen çalışan kaydı <x id="0" equiv-text="${this.formData.firstName} ${this.formData.lastName}"/> güncellenecektir.</target>
+</trans-unit>
+<trans-unit id="s506393ec7a476bc8">
+  <source>You are editing <x id="0" equiv-text="${this.formData.firstName}&#10;                  ${this.formData.lastName}"/></source>
+  <target><x id="0" equiv-text="${this.formData.firstName}&#10;                  ${this.formData.lastName}"/> çalışanını düzenliyorsunuz.</target>
+</trans-unit>
+<trans-unit id="h2c57913ffd36d298">
+  <source>First Name</source>
+  <target>Ad</target>
+</trans-unit>
+<trans-unit id="h95a75a2392af5780">
+  <source>Last Name</source>
+  <target>Soyad</target>
+</trans-unit>
+<trans-unit id="h772528836550622c">
+  <source>Date of Employment</source>
+  <target>İş Başlangıç Tarihi</target>
+</trans-unit>
+<trans-unit id="h53802e3f37d072a7">
+  <source>Date of Birth</source>
+  <target>Doğum Tarihi</target>
+</trans-unit>
+<trans-unit id="h871b1fe6d1846958">
+  <source>Phone Number</source>
+  <target>Telefon Numarası</target>
+</trans-unit>
+<trans-unit id="hd1f44f1a8bc20e67">
+  <source>Email</source>
+  <target>E-posta</target>
+</trans-unit>
+<trans-unit id="h1e45a4d7635fbda7">
+  <source>Department</source>
+  <target>Birim</target>
+</trans-unit>
+<trans-unit id="h2c2b04f2561a1d4b">
+  <source>Analytics</source>
+  <target>Analitik</target>
+</trans-unit>
+<trans-unit id="h24aadbfb1b1a1a11">
+  <source>Tech</source>
+  <target>Teknoloji</target>
+</trans-unit>
+<trans-unit id="hc1611c0558728a2a">
+  <source>Position</source>
+  <target>Pozisyon</target>
+</trans-unit>
+<trans-unit id="h7404d9208a486318">
+  <source>Junior</source>
+  <target>Junior</target>
+</trans-unit>
+<trans-unit id="hacc4d771f79ccced">
+  <source>Medior</source>
+  <target>Medior</target>
+</trans-unit>
+<trans-unit id="h8a37652cc28d3c55">
+  <source>Senior</source>
+  <target>Senior</target>
+</trans-unit>
+<trans-unit id="h2ceb11be2290bb1b">
+  <source>Cancel</source>
+  <target>İptal</target>
+</trans-unit>
+<trans-unit id="s98630d6a2c554458">
+  <source>Selected employee record of <x id="0" equiv-text="${employee.firstName} ${employee.lastName}"/> will be deleted.</source>
+  <target>Seçilen çalışan kaydı <x id="0" equiv-text="${employee.firstName} ${employee.lastName}"/> silinecektir.</target>
+</trans-unit>
+<trans-unit id="hf1bc83d2509bafcf">
+  <source>Phone</source>
+  <target>Telefon</target>
+</trans-unit>
+<trans-unit id="h8af61807443f32a4">
+  <source>Actions</source>
+  <target>İşlemler</target>
+</trans-unit>
+<trans-unit id="h64ef2a6c2dd1d3d1">
+  <source>Edit</source>
+  <target>Düzenle</target>
+</trans-unit>
+<trans-unit id="hdc673e73b5c13aea">
+  <source>Delete</source>
+  <target>Sil</target>
+</trans-unit>
+<trans-unit id="h268ecd1cef45a9a8">
+  <source>Are you sure?</source>
+  <target>Emin misiniz?</target>
+</trans-unit>
+<trans-unit id="h2714784162ec459d">
+  <source>Proceed</source>
+  <target>Devam</target>
+</trans-unit>
+<trans-unit id="h8a9fa9684ba37683">
+  <source>Edit Employee</source>
+  <target>Çalışan Bilgisi Düzenle</target>
+</trans-unit>
+</body>
+</file>
+</xliff>

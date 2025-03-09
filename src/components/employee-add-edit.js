@@ -1,10 +1,12 @@
 import {LitElement, html, css} from 'lit';
 import {employeeService} from '../store.js';
+import {msg, str} from '@lit/localize';
+import {updateWhenLocaleChanges} from '@lit/localize';
 
 class EmployeeAddEdit extends LitElement {
   static styles = css`
     :host {
-      font-family: 'ING Me Regular', serif;
+      font-family: 'INGMe', serif;
       --background-color: #fff;
       --primary-color: #ff6200;
       --secondary-color: #525199;
@@ -102,6 +104,7 @@ class EmployeeAddEdit extends LitElement {
 
   constructor() {
     super();
+    updateWhenLocaleChanges(this);
     this.employee = null;
     this.formData = {
       firstName: '',
@@ -122,7 +125,9 @@ class EmployeeAddEdit extends LitElement {
   _handleSubmitWithConfirmation(e) {
     e.preventDefault();
     if (this.isEdit) {
-      this.confirmMessage = `Selected employee record of ${this.formData.firstName} ${this.formData.lastName} will be updated.`;
+      this.confirmMessage = msg(
+        str`Selected employee record of ${this.formData.firstName} ${this.formData.lastName} will be updated.`
+      );
       this.showConfirmModal = true;
     } else {
       employeeService.send({type: 'ADD_EMPLOYEE', employee: this.formData});
@@ -163,21 +168,23 @@ class EmployeeAddEdit extends LitElement {
 
   render() {
     return html`
-      <h2>${this.isEdit ? 'Edit Employee' : 'Add Employee'}</h2>
+      <h2>
+        ${this.isEdit ? msg(html`Edit Employee`) : msg(html`Add Employee`)}
+      </h2>
       <form @submit="${this._handleSubmitWithConfirmation}">
         ${this.isEdit
           ? html`
               <div class="title-edit-form">
                 <strong
-                  >You are editing ${this.formData.firstName}
-                  ${this.formData.lastName}</strong
+                  >${msg(str`You are editing ${this.formData.firstName}
+                  ${this.formData.lastName}`)}</strong
                 >
               </div>
             `
           : null}
         <div class="form-container">
           <label>
-            First Name
+            ${msg(html`First Name`)}
             <input
               type="text"
               name="firstName"
@@ -187,7 +194,7 @@ class EmployeeAddEdit extends LitElement {
             />
           </label>
           <label>
-            Last Name
+            ${msg(html`Last Name`)}
             <input
               type="text"
               name="lastName"
@@ -197,7 +204,7 @@ class EmployeeAddEdit extends LitElement {
             />
           </label>
           <label>
-            Date of Employment
+            ${msg(html`Date of Employment`)}
             <input
               type="date"
               name="dateOfEmployment"
@@ -207,7 +214,7 @@ class EmployeeAddEdit extends LitElement {
             />
           </label>
           <label>
-            Date of Birth
+            ${msg(html`Date of Birth`)}
             <input
               type="date"
               name="dateOfBirth"
@@ -217,7 +224,7 @@ class EmployeeAddEdit extends LitElement {
             />
           </label>
           <label>
-            Phone Number
+            ${msg(html`Phone Number`)}
             <input
               type="tel"
               name="phoneNumber"
@@ -227,7 +234,7 @@ class EmployeeAddEdit extends LitElement {
             />
           </label>
           <label>
-            Email
+            ${msg(html`Email`)}
             <input
               type="email"
               name="email"
@@ -237,7 +244,7 @@ class EmployeeAddEdit extends LitElement {
             />
           </label>
           <label>
-            Department
+            ${msg(html`Department`)}
             <select
               name="department"
               .value="${this.formData.department}"
@@ -248,18 +255,18 @@ class EmployeeAddEdit extends LitElement {
                 value="Analytics"
                 ?selected="${this.formData.department === 'Analytics'}"
               >
-                Analytics
+                ${msg(html`Analytics`)}
               </option>
               <option
                 value="Tech"
                 ?selected="${this.formData.department === 'Tech'}"
               >
-                Tech
+                ${msg(html`Tech`)}
               </option>
             </select>
           </label>
           <label>
-            Position
+            ${msg(html`Position`)}
             <select
               name="position"
               .value="${this.formData.position}"
@@ -270,19 +277,19 @@ class EmployeeAddEdit extends LitElement {
                 value="Junior"
                 ?selected="${this.formData.position === 'Junior'}"
               >
-                Junior
+                ${msg(html`Junior`)}
               </option>
               <option
                 value="Medior"
                 ?selected="${this.formData.position === 'Medior'}"
               >
-                Medior
+                ${msg(html`Medior`)}
               </option>
               <option
                 value="Senior"
                 ?selected="${this.formData.position === 'Senior'}"
               >
-                Senior
+                ${msg(html`Senior`)}
               </option>
             </select>
           </label>
@@ -290,7 +297,7 @@ class EmployeeAddEdit extends LitElement {
         <div class="form-btn-container">
           <button type="submit">Save</button>
           <button type="button" class="cancel" @click="${this._cancelEdit}">
-            Cancel
+            ${msg(html`Cancel`)}
           </button>
         </div>
       </form>
