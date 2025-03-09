@@ -38,7 +38,7 @@ const employeeMachine = createMachine({
           actions: assign({
             employees: ({context, event}) => {
               const newEmployees = context.employees.filter(
-                (e) => e.phoneNumber !== event.phoneNumber
+                (e) => e.phoneNumber !== event.employee.phoneNumber
               );
               localStorage.setItem('employees', JSON.stringify(newEmployees));
               return newEmployees;

@@ -3,19 +3,25 @@ import {employeeService} from '../store.js';
 
 class EmployeeList extends LitElement {
   static properties = {
-    employees: {type: Array},
+    employees: {type: Array, reflect: true},
     viewMode: {type: String, reflect: true},
     itemsPerPage: {type: Number, reflect: true},
     currentPage: {type: Number},
+    editingEmployee: {type: Object},
+    showConfirmModal: {type: Boolean},
+    confirmMessage: {type: String},
+    employeeToDelete: {type: Object},
   };
 
   constructor() {
     super();
     this.employees = employeeService.getSnapshot().context.employees;
     this.viewMode = 'table';
-    this.itemsPerPage = this.viewMode === 'table' ? 1 : 4;
+    this.itemsPerPage = this.viewMode === 'table' ? 9 : 4;
     this.currentPage = 1;
     this.totalPages = Math.ceil(this.employees.length / this.itemsPerPage);
+    this.editingEmployee = null;
+    this.employeeToDelete = null;
   }
 
   _paginatedList() {
@@ -25,8 +31,14 @@ class EmployeeList extends LitElement {
 
   updated(changedVal) {
     if (changedVal.has('viewMode')) {
-      this.itemsPerPage = this.viewMode === 'table' ?1 : 4;
+      this.itemsPerPage = this.viewMode === 'table' ? 9 : 4;
     }
+
+    // commented out to use store subscription instead
+    // else if (changedVal.has('editingEmployee')) {
+    //   this.employees = employeeService.getSnapshot().context.employees;
+    // }
+
     // handling an edge case here, if let's say list view is set to show 3 items per page, grid mod is set to show 1 item per page
     // what happens if the user switch back to list view at the last page of grid view?
     // so to handle this; set current page to total calculated page count (and if zero set to 1) if current page count is bigger
@@ -82,8 +94,49 @@ class EmployeeList extends LitElement {
     return buttons;
   }
 
+  _handleEdit(employee) {
+    this.editingEmployee = employee;
+  }
+
+  _handleDeleteWithConfirmation(employee) {
+    this.confirmMessage = `Selected employee record of ${employee.firstName} ${employee.lastName} will be deleted.`;
+    this.showConfirmModal = true;
+    this.employeeToDelete = employee;
+  }
+
+  _onConfirm() {
+    // this.employees = employeeService.getSnapshot().context.employees;
+    // it is better to subscribe to the store since manual updating is just another cognitive load for us :)
+    employeeService.send({
+      type: 'DELETE_EMPLOYEE',
+      employee: this.employeeToDelete,
+    });
+  }
+
+  _onCancel() {
+    this.showConfirmModal = false;
+  }
+
+  _handleEditFormSubmitted(e) {
+    this.editingEmployee = null;
+  }
+
+  // sub to store to keep the component updated with the latest changes
+  connectedCallback() {
+    super.connectedCallback();
+    this.subscription = employeeService.subscribe((state) => {
+      this.employees = state.context.employees;
+    });
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.subscription.unsubscribe();
+  }
+
   static styles = css`
     :host {
+        font-family: "ING Me Regular",serif;
       --primary-color: #ff6200;
       --secondary-color: #525199;
       --background-color: #f9f9f9;
@@ -92,7 +145,6 @@ class EmployeeList extends LitElement {
       --text-bold: bold;
 
       display: block;
-      font-family: Arial, sans-serif;
     }
 
     .container {
@@ -128,7 +180,7 @@ class EmployeeList extends LitElement {
     .table-container {
       background: white;
       padding: 20px 0;
-      box-shadow: 0 2px 10px var(--shadow-color);
+      //box-shadow: 0 2px 10px var(--shadow-color);
     }
 
     table {
@@ -278,8 +330,8 @@ class EmployeeList extends LitElement {
   render() {
     return html`
       <div class="container">
-        <div class="title-view-mode-container">
-          <h2>Employee List</h2>
+        ${!this.editingEmployee ? html`<div class="title-view-mode-container">
+          <h2>${this.editingEmployee ? '' : 'Employee List'}</h2>
           <div class="view-toggle">
             <button
               @click="${() => (this.viewMode = 'table')}"
@@ -293,11 +345,16 @@ class EmployeeList extends LitElement {
                 this.viewMode === 'grid' ? 'active' : ''
               }">${this.renderGridViewIcon()}
             </button>
-          </div>
+          </div>`:''}
         </div>
-
         ${
-          this.viewMode === 'table'
+          this.editingEmployee
+            ? html` <employee-add-edit
+                .employee="${this.editingEmployee}"
+                @employee-list-updated="${this._handleEditFormSubmitted}"
+                @employee-cancel-edit="${this._handleEditFormSubmitted}"
+              />`
+            : this.viewMode === 'table'
             ? html`
                 <div class="table-container">
                   <table>
@@ -327,10 +384,17 @@ class EmployeeList extends LitElement {
                             <td>${e.department}</td>
                             <td>${e.position}</td>
                             <td>
-                              <button class="icon-button">
+                              <button
+                                class="icon-button"
+                                @click="${() => this._handleEdit(e)}"
+                              >
                                 ${this.renderEditIcon()}
                               </button>
-                              <button class="icon-button">
+                              <button
+                                class="icon-button"
+                                @click="${() =>
+                                  this._handleDeleteWithConfirmation(e)}"
+                              >
                                 ${this.renderDeleteIcon()}
                               </button>
                             </td>
@@ -383,10 +447,17 @@ class EmployeeList extends LitElement {
                           </div>
                         </div>
                         <div class="card-actions grid">
-                          <button class="icon-button grid">
+                          <button
+                            class="icon-button grid"
+                            @click="${() => this._handleEdit(e)}"
+                          >
                             ${this.renderEditIcon()} Edit
                           </button>
-                          <button class="icon-button grid orange">
+                          <button
+                            class="icon-button grid orange"
+                            @click="${() =>
+                              this._handleDeleteWithConfirmation(e)}"
+                          >
                             ${this.renderDeleteIcon()} Delete
                           </button>
                         </div>
@@ -396,7 +467,8 @@ class EmployeeList extends LitElement {
                 </div>
               `
         }
-        <div class="pagination">
+
+        ${!this.editingEmployee ? html`<div class="pagination">
           <button class="pagination-button enabled" @click="${() =>
             this._changePage(this.currentPage - 1)}"
                   ?disabled="${
@@ -422,8 +494,20 @@ class EmployeeList extends LitElement {
                   }">
             ${this.renderChevronRightIcon()}
           </button>
-        </div>
+        </div>` : ''}
       </div>
+      ${
+        this.showConfirmModal
+          ? html`
+              <confirmation-modal
+                .visible="${this.showConfirmModal}"
+                .message="${this.confirmMessage}"
+                @confirm="${this._onConfirm}"
+                @cancel="${this._onCancel}"
+              />
+            `
+          : ''
+      }
       </div>
     `;
   }

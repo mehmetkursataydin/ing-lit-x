@@ -3,53 +3,88 @@ import {employeeService} from '../store.js';
 
 class EmployeeAddEdit extends LitElement {
   static styles = css`
-      :host {
-          display: flex;
-          justify-content: center;
-          align-items: center;
+    :host {
+      font-family: 'ING Me Regular', serif;
+      --background-color: #fff;
+      --primary-color: #ff6200;
+      --secondary-color: #525199;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      margin: 0 auto;
+      padding: 20px 20px;
+    }
+
+    h2 {
+      color: var(--primary-color);
+      align-self: start;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 60px;
+      background: var(--background-color);
+      padding: 70px;
+    }
+
+    .title-edit-form {
+      align-self: start;
+    }
+
+    .form-container {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      column-gap: 100px;
+      row-gap: 40px;
+    }
+
+    .form-btn-container {
+      display: flex;
+      gap: 50px;
+
+      button {
+        width: 200px;
+        height: 32px;
+        border-radius: 6px;
+        border: 0 solid transparent;
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
       }
 
-      form {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 60px;
+      button.cancel {
+        width: 200px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1px solid var(--secondary-color);
+        color: var(--secondary-color);
+        background-color: white;
+        font-weight: bold;
       }
+    }
 
-      .form-container {
-          width: 100%;
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          column-gap: 100px;
-          row-gap: 40px;
-      }
+    label {
+      display: flex;
+      gap: 6px;
+      flex-direction: column;
+    }
 
-      .form-btn-container {
-          display: flex;
-          gap: 50px;
-
-          button {
-              width: 200px;
-              height: 32px;
-              border-radius: 6px;
-              border: 0 solid transparent;
-          }
-      }
-
-      label {
-          display: flex;
-          gap: 6px;
-          flex-direction: column;
-      }
-
-      input {
-          height: 24px;
-      }
+    input {
+      height: 24px;
+    }
   `;
 
   static properties = {
     isEdit: false,
+    employee: {type: Object, reflect: true},
+    showConfirmModal: {type: Boolean},
+    confirmMessage: {type: String},
   };
 
   constructor() {
@@ -68,24 +103,68 @@ class EmployeeAddEdit extends LitElement {
   }
 
   _handleInput(e) {
-    this.formData = {...this.formData, [e.target.name]: e.target.value}
+    this.formData = {...this.formData, [e.target.name]: e.target.value};
   }
 
-  _handleSubmit(e) {
-    //todo
-    e.preventDefault()
-    //validate
+  _handleSubmitWithConfirmation(e) {
+    e.preventDefault();
+    if (this.isEdit) {
+      this.confirmMessage = `Selected employee record of ${this.formData.firstName} ${this.formData.lastName} will be updated.`;
+      this.showConfirmModal = true;
+    } else {
+      employeeService.send({type: 'ADD_EMPLOYEE', employee: this.formData});
+      this.dispatchEvent(
+        new CustomEvent('employee-list-updated', {bubbles: true})
+      );
+    }
+  }
 
-    employeeService.send({type: 'ADD_EMPLOYEE', employee: this.formData})
-    this.dispatchEvent(new CustomEvent('employee-added', {bubbles: true}))
+  _onConfirm() {
+    if (this.isEdit) {
+      employeeService.send({type: 'EDIT_EMPLOYEE', employee: this.formData});
+      this.isEdit = false;
+    } else {
+      employeeService.send({type: 'ADD_EMPLOYEE', employee: this.formData});
+    }
+    this.dispatchEvent(
+      new CustomEvent('employee-list-updated', {bubbles: true})
+    );
+  }
+
+  _onCancel() {
+    this.showConfirmModal = false;
+  }
+
+  _cancelEdit() {
+    this.dispatchEvent(
+      new CustomEvent('employee-cancel-edit', {bubbles: true})
+    );
+  }
+
+  updated(changedVal) {
+    if (changedVal.has('employee') && this.employee) {
+      this.formData = {...this.employee};
+      this.isEdit = true;
+    }
   }
 
   render() {
     return html`
-      <form @submit="${this._handleSubmit}">
+      <h2>${this.isEdit ? 'Edit Employee' : 'Add Employee'}</h2>
+      <form @submit="${this._handleSubmitWithConfirmation}">
+        ${this.isEdit
+          ? html`
+              <div class="title-edit-form">
+                <strong>
+                  You are editing ${this.formData.firstName}
+                  ${this.formData.lastName}
+                </strong>
+              </div>
+            `
+          : null}
         <div class="form-container">
           <label>
-            First Name:
+            First Name
             <input
               type="text"
               name="firstName"
@@ -96,7 +175,7 @@ class EmployeeAddEdit extends LitElement {
           </label>
 
           <label>
-            Last Name:
+            Last Name
             <input
               type="text"
               name="lastName"
@@ -107,7 +186,7 @@ class EmployeeAddEdit extends LitElement {
           </label>
 
           <label>
-            Date of Employment:
+            Date of Employment
             <input
               type="date"
               name="dateOfEmployment"
@@ -118,7 +197,7 @@ class EmployeeAddEdit extends LitElement {
           </label>
 
           <label>
-            Date of Birth:
+            Date of Birth
             <input
               type="date"
               name="dateOfBirth"
@@ -129,7 +208,7 @@ class EmployeeAddEdit extends LitElement {
           </label>
 
           <label>
-            Phone Number:
+            Phone Number
             <input
               type="tel"
               name="phoneNumber"
@@ -140,7 +219,7 @@ class EmployeeAddEdit extends LitElement {
           </label>
 
           <label>
-            Email:
+            Email
             <input
               type="email"
               name="email"
@@ -151,47 +230,74 @@ class EmployeeAddEdit extends LitElement {
           </label>
 
           <label>
-            Department:
+            Department
             <select
               name="department"
               .value="${this.formData.department}"
               @change="${this._handleInput}"
               required
             >
-              <option value="Analytics" ?selected="${this.formData.department === 'Analytics'}">
+              <option
+                value="Analytics"
+                ?selected="${this.formData.department === 'Analytics'}"
+              >
                 Analytics
               </option>
-              <option value="Tech" ?selected="${this.formData.department === 'Tech'}">
+              <option
+                value="Tech"
+                ?selected="${this.formData.department === 'Tech'}"
+              >
                 Tech
               </option>
             </select>
           </label>
 
           <label>
-            Position:
+            Position
             <select
               name="position"
               .value="${this.formData.position}"
               @change="${this._handleInput}"
               required
             >
-              <option value="Junior" ?selected="${this.formData.position === 'Junior'}">
+              <option
+                value="Junior"
+                ?selected="${this.formData.position === 'Junior'}"
+              >
                 Junior
               </option>
-              <option value="Medior" ?selected="${this.formData.position === 'Medior'}">
+              <option
+                value="Medior"
+                ?selected="${this.formData.position === 'Medior'}"
+              >
                 Medior
               </option>
-              <option value="Senior" ?selected="${this.formData.position === 'Senior'}">
+              <option
+                value="Senior"
+                ?selected="${this.formData.position === 'Senior'}"
+              >
                 Senior
               </option>
             </select>
           </label>
         </div>
         <div class="form-btn-container">
-        <button type="submit">Save</button>
-        <button type="button">Cancel</button>
+          <button type="submit">Save</button>
+          <button type="button" class="cancel" @click="${this._cancelEdit}">
+            Cancel
+          </button>
         </div>
       </form>
+      ${this.showConfirmModal
+        ? html`
+            <confirmation-modal
+              .visible="${this.showConfirmModal}"
+              .message="${this.confirmMessage}"
+              @confirm="${this._onConfirm}"
+              @cancel="${this._onCancel}"
+            />
+          `
+        : ''}
     `;
   }
 }
