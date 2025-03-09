@@ -71,7 +71,7 @@ export class EmployeeList extends LitElement {
       buttons.push(1); // first page btn is always visible
 
       if (this.currentPage <= 3) {
-        // in the design i see 5 visible numbers of the pages but for this task i set
+        // in the design i see 5 visible numbers of the pages but for this task i set 3
         buttons.push(2);
         buttons.push(3);
         if (total > 4) {
@@ -147,7 +147,6 @@ export class EmployeeList extends LitElement {
       --border-color: #f1f1f1;
       --shadow-color: rgba(0, 0, 0, 0.1);
       --text-bold: bold;
-
       display: block;
     }
 
@@ -351,7 +350,6 @@ export class EmployeeList extends LitElement {
         font-size: 12px;
       }
     }
-
     @media (max-width: 480px) {
       .grid-container {
         grid-template-columns: 1fr;
@@ -516,7 +514,9 @@ export class EmployeeList extends LitElement {
           ? html`
               <div class="pagination">
                 <button
-                  class="pagination-button enabled"
+                  class="pagination-button ${this.currentPage === 1
+                    ? ''
+                    : 'enabled'}"
                   @click="${() => this._changePage(this.currentPage - 1)}"
                   ?disabled="${this.currentPage === 1}"
                 >
@@ -537,6 +537,11 @@ export class EmployeeList extends LitElement {
                   `
                 )}
                 <button
+                  class="pagination-button ${this.currentPage *
+                    this.itemsPerPage >=
+                  this.employees.length
+                    ? ''
+                    : 'enabled'}"
                   @click="${() => this._changePage(this.currentPage + 1)}"
                   ?disabled="${this.currentPage * this.itemsPerPage >=
                   this.employees.length}"

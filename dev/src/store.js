@@ -1,5 +1,5 @@
 import {createMachine, createActor, assign} from 'xstate';
-import {sourceLocale} from './generated/locale-codes.js';
+import {sourceLocale} from '../generated/locale-codes.js';
 
 const getStoredLocalStorageData = (key, defaultValue) => {
   const data = localStorage.getItem(key);
@@ -27,7 +27,7 @@ export const employeeMachine = createMachine({
               );
               if (duplicate) {
                 // duplicate found, could throw an event to handle the error from the component maybe or
-                // there might be a better solution to handle this but it requires xstate research :)
+                // there might be a better solution to handle this, but it requires xstate research :)
                 return context.employees;
               }
               const newEmployees = [...context.employees, event.employee];

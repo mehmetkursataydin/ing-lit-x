@@ -1,7 +1,7 @@
 import { fixture, assert, oneEvent } from '@open-wc/testing';
 import { html } from 'lit/static-html.js';
-import {EmployeeAddEdit} from '../src/components/employee-add-edit.js';
-import {employeeService} from '../src/store.js';
+import {EmployeeAddEdit} from '../dev/src/components/employee-add-edit.js';
+import {employeeService} from '../dev/src/store.js';
 
 suite('employee-add-edit', () => {
   let sendPayload;

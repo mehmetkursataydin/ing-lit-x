@@ -1,7 +1,7 @@
 import { fixture, assert, oneEvent } from '@open-wc/testing';
 import { html } from 'lit/static-html.js';
-import {NavTop} from '../src/components/nav-top.js';
-import {getLocale} from '../src/main.js';
+import {NavTop} from '../dev/src/components/nav-top.js';
+import {getLocale} from '../dev/src/main.js';
 
 suite('nav-top', () => {
   test('is defined', () => {

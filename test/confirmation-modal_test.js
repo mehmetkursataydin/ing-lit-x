@@ -1,6 +1,6 @@
 import { fixture, assert, oneEvent } from '@open-wc/testing';
 import { html } from 'lit/static-html.js';
-import {ConfirmationModal} from '../src/components/confirmation-modal.js';
+import {ConfirmationModal} from '../dev/src/components/confirmation-modal.js';
 
 suite('confirmation-modal', () => {
   test('is defined', () => {

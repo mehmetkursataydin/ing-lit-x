@@ -3,7 +3,7 @@ import './components/nav-top.js';
 import './components/employee-add-edit.js';
 import './components/employee-list.js';
 import {configureLocalization} from '@lit/localize';
-import {sourceLocale, targetLocales} from './generated/locale-codes.js';
+import {sourceLocale, targetLocales} from '../generated/locale-codes.js';
 import {employeeService} from './store.js';
 
 const storeSnapshot = employeeService.getSnapshot().context.language;

@@ -72,7 +72,7 @@
 </trans-unit>
 <trans-unit id="h2ceb11be2290bb1b">
   <source>Cancel</source>
-  <target>İptal</target>
+  <target>Vazgeç</target>
 </trans-unit>
 <trans-unit id="s98630d6a2c554458">
   <source>Selected employee record of <x id="0" equiv-text="${employee.firstName} ${employee.lastName}"/> will be deleted.</source>
@@ -105,6 +105,10 @@
 <trans-unit id="h8a9fa9684ba37683">
   <source>Edit Employee</source>
   <target>Çalışan Bilgisi Düzenle</target>
+</trans-unit>
+<trans-unit id="h33f85f24c0f5f008">
+  <source>Save</source>
+  <target>Kaydet</target>
 </trans-unit>
 </body>
 </file>

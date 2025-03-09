@@ -1,7 +1,7 @@
 import {fixture, assert} from '@open-wc/testing';
 import {html} from 'lit/static-html.js';
-import {EmployeeList} from '../src/components/employee-list.js';
-import {employeeService} from '../src/store.js';
+import {EmployeeList} from '../dev/src/components/employee-list.js';
+import {employeeService} from '../dev/src/store.js';
 
 suite('employee-list', () => {
   let dummyEmployees;

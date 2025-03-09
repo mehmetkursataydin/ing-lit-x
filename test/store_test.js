@@ -1,7 +1,7 @@
 import { assert } from '@open-wc/testing';
 import { createActor } from 'xstate';
 import {sourceLocale} from '../dev/generated/locale-codes.js';
-import {employeeMachine} from '../src/store.js';
+import {employeeMachine} from '../dev/src/store.js';
 
 suite('employeeMachine', () => {
   let service;

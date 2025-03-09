@@ -295,7 +295,7 @@ export class EmployeeAddEdit extends LitElement {
           </label>
         </div>
         <div class="form-btn-container">
-          <button type="submit">Save</button>
+          <button type="submit">${msg(html`Save`)}</button>
           <button type="button" class="cancel" @click="${this._cancelEdit}">
             ${msg(html`Cancel`)}
           </button>
