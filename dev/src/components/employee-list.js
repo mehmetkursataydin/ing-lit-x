@@ -3,6 +3,10 @@ import {msg, str, updateWhenLocaleChanges} from '@lit/localize';
 import {employeeService} from '../store.js';
 
 export class EmployeeList extends LitElement {
+  static TABLE_ITEMS_PER_PAGE = 9;
+  static GRID_ITEMS_PER_PAGE = 4;
+  static VISIBLE_PAGE_NUMBERS = 3;
+
   static properties = {
     employees: {type: Array, reflect: true},
     viewMode: {type: String, reflect: true},
@@ -19,7 +23,10 @@ export class EmployeeList extends LitElement {
     updateWhenLocaleChanges(this);
     this.employees = employeeService.getSnapshot().context.employees;
     this.viewMode = 'table';
-    this.itemsPerPage = this.viewMode === 'table' ? 9 : 4;
+    this.itemsPerPage =
+      this.viewMode === 'table'
+        ? EmployeeList.TABLE_ITEMS_PER_PAGE
+        : EmployeeList.GRID_ITEMS_PER_PAGE;
     this.currentPage = 1;
     this.totalPages = Math.ceil(this.employees.length / this.itemsPerPage);
     this.editingEmployee = null;
@@ -33,7 +40,10 @@ export class EmployeeList extends LitElement {
 
   updated(changedVal) {
     if (changedVal.has('viewMode')) {
-      this.itemsPerPage = this.viewMode === 'table' ? 9 : 4;
+      this.itemsPerPage =
+        this.viewMode === 'table'
+          ? EmployeeList.TABLE_ITEMS_PER_PAGE
+          : EmployeeList.GRID_ITEMS_PER_PAGE;
     }
 
     // commented out to use store subscription instead
@@ -46,7 +56,7 @@ export class EmployeeList extends LitElement {
     // so to handle this; set current page to total calculated page count (and if zero set to 1) if current page count is bigger
     // than total calc page count
     const totalPages = Math.ceil(this.employees.length / this.itemsPerPage);
-    if (this.currentPage > this.totalPages) {
+    if (this.currentPage > totalPages) {
       this.currentPage = totalPages || 1;
     }
     this.totalPages = totalPages;
@@ -62,26 +72,29 @@ export class EmployeeList extends LitElement {
   _createPaginationButtons() {
     const buttons = [];
     const total = this.totalPages;
+    const visible = EmployeeList.VISIBLE_PAGE_NUMBERS;
 
-    if (total <= 3) {
+    if (total <= visible) {
       for (let i = 1; i <= total; i++) {
         buttons.push(i);
       }
     } else {
       buttons.push(1); // first page btn is always visible
 
-      if (this.currentPage <= 3) {
+      if (this.currentPage <= visible) {
         // in the design i see 5 visible numbers of the pages but for this task i set 3
-        buttons.push(2);
-        buttons.push(3);
-        if (total > 4) {
+        for (let i = 2; i <= visible; i++) {
+          buttons.push(i);
+        }
+        if (total > visible + 1) {
           buttons.push('...');
         }
-      } else if (this.currentPage >= total - 2) {
+      } else if (this.currentPage >= total - visible + 1) {
         // ending adjustments
         buttons.push('...');
-        buttons.push(total - 2);
-        buttons.push(total - 1);
+        for (let i = total - visible + 1; i < total; i++) {
+          buttons.push(i);
+        }
       } else {
         // dots, page, dots until ending
         buttons.push('...');
@@ -92,7 +105,6 @@ export class EmployeeList extends LitElement {
       // lst page btn is always visible
       buttons.push(total);
     }
-
     return buttons;
   }
 
@@ -115,10 +127,15 @@ export class EmployeeList extends LitElement {
       type: 'DELETE_EMPLOYEE',
       employee: this.employeeToDelete,
     });
+    this.showConfirmModal = false;
+    this.employeeToDelete = null;
+    this.confirmMessage = '';
   }
 
   _onCancel() {
     this.showConfirmModal = false;
+    this.employeeToDelete = null;
+    this.confirmMessage = '';
   }
 
   _handleEditFormSubmitted() {
@@ -350,6 +367,7 @@ export class EmployeeList extends LitElement {
         font-size: 12px;
       }
     }
+
     @media (max-width: 480px) {
       .grid-container {
         grid-template-columns: 1fr;
