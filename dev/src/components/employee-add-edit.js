@@ -33,6 +33,15 @@ export class EmployeeAddEdit extends LitElement {
       padding: 70px;
     }
 
+    select {
+      height: 30px;
+    }
+
+    input[type='date']::-webkit-calendar-picker-indicator {
+      filter: invert(41%) sepia(100%) saturate(4000%) hue-rotate(350deg)
+        brightness(110%) contrast(101%);
+    }
+
     .title-edit-form {
       align-self: start;
     }
