@@ -2,7 +2,7 @@ import {LitElement, html, css} from 'lit';
 import {msg, updateWhenLocaleChanges} from '@lit/localize';
 import {getLocale} from '../main.js';
 
-class NavTop extends LitElement {
+export class NavTop extends LitElement {
   constructor() {
     super();
     updateWhenLocaleChanges(this);

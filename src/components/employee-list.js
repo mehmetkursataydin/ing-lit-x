@@ -2,7 +2,7 @@ import {html, css, LitElement} from 'lit';
 import {msg, str, updateWhenLocaleChanges} from '@lit/localize';
 import {employeeService} from '../store.js';
 
-class EmployeeList extends LitElement {
+export class EmployeeList extends LitElement {
   static properties = {
     employees: {type: Array, reflect: true},
     viewMode: {type: String, reflect: true},

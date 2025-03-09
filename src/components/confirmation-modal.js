@@ -1,7 +1,7 @@
 import {LitElement, html, css} from 'lit';
 import {msg} from '@lit/localize';
 
-class ConfirmationModal extends LitElement {
+export class ConfirmationModal extends LitElement {
   static properties = {
     visible: {type: Boolean, reflect: true},
     message: {type: String},

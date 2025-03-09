@@ -6,7 +6,7 @@ const getStoredLocalStorageData = (key, defaultValue) => {
   return data ? JSON.parse(data) : defaultValue;
 };
 
-const employeeMachine = createMachine({
+export const employeeMachine = createMachine({
   id: 'employee',
   context: {
     employees: getStoredLocalStorageData('employees', []),

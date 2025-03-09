@@ -3,7 +3,7 @@ import {employeeService} from '../store.js';
 import {msg, str} from '@lit/localize';
 import {updateWhenLocaleChanges} from '@lit/localize';
 
-class EmployeeAddEdit extends LitElement {
+export class EmployeeAddEdit extends LitElement {
   static styles = css`
     :host {
       font-family: 'INGMe', serif;
