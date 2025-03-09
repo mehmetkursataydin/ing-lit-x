@@ -14,6 +14,7 @@ export const {getLocale, setLocale} = configureLocalization({
   loadLocale: (locale) => import(`/dev/generated/locales/${locale}.js`),
 });
 const htmlLang = storeSnapshot ?? document.documentElement.lang ?? sourceLocale;
+document.documentElement.lang = htmlLang;
 await setLocale(htmlLang);
 
 const router = new Router(document.getElementById('outlet'));
@@ -43,8 +44,10 @@ window.addEventListener('locale-changed', async (e) => {
   if (language === 'en') {
     await setLocale('tr');
     employeeService.send({type: 'CHANGE_LANGUAGE', language: 'tr'});
+    document.documentElement.lang = 'tr';
   } else {
     await setLocale('en');
     employeeService.send({type: 'CHANGE_LANGUAGE', language: 'en'});
+    document.documentElement.lang = 'en';
   }
 });
